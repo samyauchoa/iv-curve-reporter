@@ -16,76 +16,7 @@ interface FileUploadProps {
 }
 
 export const FileUpload = ({ uploadedFiles, setUploadedFiles }: FileUploadProps) => {
-  const [isDragging, setIsDragging] = useState(false);
   const { toast } = useToast();
-
-  const handleDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
-
-  const handleDragLeave = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setIsDragging(false);
-    
-    const files = Array.from(e.dataTransfer.files);
-    processFiles(files);
-  }, []);
-
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    processFiles(files);
-  }, []);
-
-  const processFiles = (files: File[]) => {
-    const pdfFiles = files.filter(file => file.type === "application/pdf");
-    const csvFiles = files.filter(file => 
-      file.type === "text/csv" || 
-      file.name.endsWith('.csv') ||
-      file.type === "application/vnd.ms-excel" ||
-      file.name.endsWith('.xlsx')
-    );
-
-    if (pdfFiles.length > 1) {
-      toast({
-        title: "Aviso",
-        description: "Apenas um arquivo PDF de datasheet é permitido. Usando o primeiro arquivo.",
-        variant: "default",
-      });
-    }
-
-    setUploadedFiles({
-      datasheet: pdfFiles[0] || uploadedFiles.datasheet,
-      csvFiles: [...uploadedFiles.csvFiles, ...csvFiles],
-    });
-
-    if (pdfFiles.length > 0 || csvFiles.length > 0) {
-      toast({
-        title: "Arquivos carregados!",
-        description: `${pdfFiles.length} datasheet(s) e ${csvFiles.length} arquivo(s) CSV carregados.`,
-      });
-    }
-  };
-
-  const removeFile = (type: 'datasheet' | 'csv', index?: number) => {
-    if (type === 'datasheet') {
-      setUploadedFiles({
-        ...uploadedFiles,
-        datasheet: undefined,
-      });
-    } else if (type === 'csv' && index !== undefined) {
-      const newCsvFiles = uploadedFiles.csvFiles.filter((_, i) => i !== index);
-      setUploadedFiles({
-        ...uploadedFiles,
-        csvFiles: newCsvFiles,
-      });
-    }
-  };
 
   const handleDatasheetUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -101,6 +32,12 @@ export const FileUpload = ({ uploadedFiles, setUploadedFiles }: FileUploadProps)
         title: "Datasheet carregado!",
         description: `Arquivo ${pdfFiles[0].name} carregado com sucesso.`,
       });
+    } else {
+      toast({
+        title: "Erro no upload",
+        description: "Por favor, selecione um arquivo PDF válido.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -110,7 +47,8 @@ export const FileUpload = ({ uploadedFiles, setUploadedFiles }: FileUploadProps)
       file.type === "text/csv" || 
       file.name.endsWith('.csv') ||
       file.type === "application/vnd.ms-excel" ||
-      file.name.endsWith('.xlsx')
+      file.name.endsWith('.xlsx') ||
+      file.name.endsWith('.xls')
     );
     
     if (csvFiles.length > 0) {
@@ -122,6 +60,38 @@ export const FileUpload = ({ uploadedFiles, setUploadedFiles }: FileUploadProps)
       toast({
         title: "Arquivos CSV carregados!",
         description: `${csvFiles.length} arquivo(s) de curva IV carregados.`,
+      });
+    } else {
+      toast({
+        title: "Erro no upload",
+        description: "Por favor, selecione arquivos CSV ou Excel válidos.",
+        variant: "destructive",
+      });
+    }
+    
+    // Reset input value to allow same file upload again
+    e.target.value = '';
+  };
+
+  const removeFile = (type: 'datasheet' | 'csv', index?: number) => {
+    if (type === 'datasheet') {
+      setUploadedFiles({
+        ...uploadedFiles,
+        datasheet: undefined,
+      });
+      toast({
+        title: "Arquivo removido",
+        description: "Datasheet removido com sucesso.",
+      });
+    } else if (type === 'csv' && index !== undefined) {
+      const newCsvFiles = uploadedFiles.csvFiles.filter((_, i) => i !== index);
+      setUploadedFiles({
+        ...uploadedFiles,
+        csvFiles: newCsvFiles,
+      });
+      toast({
+        title: "Arquivo removido",
+        description: "Arquivo CSV removido com sucesso.",
       });
     }
   };
