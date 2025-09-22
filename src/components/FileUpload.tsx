@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Upload, FileText, X, CheckCircle } from "lucide-react";
+import { Upload, FileText, X, CheckCircle, BarChart3 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface UploadedFiles {
@@ -87,45 +87,103 @@ export const FileUpload = ({ uploadedFiles, setUploadedFiles }: FileUploadProps)
     }
   };
 
+  const handleDatasheetUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const pdfFiles = files.filter(file => file.type === "application/pdf");
+    
+    if (pdfFiles.length > 0) {
+      setUploadedFiles({
+        ...uploadedFiles,
+        datasheet: pdfFiles[0],
+      });
+      
+      toast({
+        title: "Datasheet carregado!",
+        description: `Arquivo ${pdfFiles[0].name} carregado com sucesso.`,
+      });
+    }
+  };
+
+  const handleCsvUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const csvFiles = files.filter(file => 
+      file.type === "text/csv" || 
+      file.name.endsWith('.csv') ||
+      file.type === "application/vnd.ms-excel" ||
+      file.name.endsWith('.xlsx')
+    );
+    
+    if (csvFiles.length > 0) {
+      setUploadedFiles({
+        ...uploadedFiles,
+        csvFiles: [...uploadedFiles.csvFiles, ...csvFiles],
+      });
+      
+      toast({
+        title: "Arquivos CSV carregados!",
+        description: `${csvFiles.length} arquivo(s) de curva IV carregados.`,
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {/* Drop Zone */}
-      <div
-        className={`
-          border-2 border-dashed rounded-lg p-8 text-center transition-colors
-          ${isDragging 
-            ? 'border-primary bg-primary/10' 
-            : 'border-border hover:border-primary/50'
-          }
-        `}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
-      >
-        <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-medium mb-2">
-          Arraste e solte seus arquivos aqui
-        </h3>
-        <p className="text-muted-foreground mb-4">
-          ou clique para selecionar arquivos
-        </p>
-        <input
-          type="file"
-          multiple
-          accept=".pdf,.csv,.xlsx"
-          onChange={handleFileSelect}
-          className="hidden"
-          id="file-upload"
-        />
-        <label htmlFor="file-upload">
-          <Button variant="outline" className="cursor-pointer">
-            Selecionar Arquivos
-          </Button>
-        </label>
-        <p className="text-sm text-muted-foreground mt-2">
-          Aceita arquivos PDF (datasheet) e CSV/Excel (dados IV)
-        </p>
-      </div>
+      {/* Datasheet Upload */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <FileText className="mx-auto h-12 w-12 text-destructive mb-4" />
+            <h3 className="text-lg font-medium mb-2">
+              Datasheet do Módulo Fotovoltaico
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Faça upload do arquivo PDF com as especificações técnicas do módulo
+            </p>
+            <input
+              type="file"
+              accept=".pdf"
+              onChange={handleDatasheetUpload}
+              className="hidden"
+              id="datasheet-upload"
+            />
+            <label htmlFor="datasheet-upload">
+              <Button variant="outline" className="cursor-pointer">
+                <Upload className="h-4 w-4 mr-2" />
+                Selecionar Datasheet (PDF)
+              </Button>
+            </label>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* CSV Upload */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <BarChart3 className="mx-auto h-12 w-12 text-success mb-4" />
+            <h3 className="text-lg font-medium mb-2">
+              Arquivos de Curva I-V
+            </h3>
+            <p className="text-muted-foreground mb-4">
+              Faça upload dos arquivos CSV/Excel gerados pelo traçador de curva I-V
+            </p>
+            <input
+              type="file"
+              multiple
+              accept=".csv,.xlsx,.xls"
+              onChange={handleCsvUpload}
+              className="hidden"
+              id="csv-upload"
+            />
+            <label htmlFor="csv-upload">
+              <Button variant="outline" className="cursor-pointer">
+                <Upload className="h-4 w-4 mr-2" />
+                Selecionar Arquivos CSV/Excel
+              </Button>
+            </label>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Uploaded Files Display */}
       <div className="space-y-4">
