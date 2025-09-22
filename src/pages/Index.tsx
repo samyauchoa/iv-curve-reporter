@@ -34,7 +34,7 @@ const Index = () => {
     csvFiles: [],
   });
   
-  const [activeTab, setActiveTab] = useState("upload");
+  const [activeTab, setActiveTab] = useState("plant-data");
   const { toast } = useToast();
 
   const handlePlantDataChange = (field: keyof PlantData, value: string | number) => {
@@ -92,13 +92,13 @@ const Index = () => {
       <main className="container mx-auto px-4 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Upload
-            </TabsTrigger>
             <TabsTrigger value="plant-data" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Dados da Usina
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Upload
             </TabsTrigger>
             <TabsTrigger value="analysis" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
@@ -109,20 +109,6 @@ const Index = () => {
               Relatório
             </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="upload" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload de Arquivos</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FileUpload 
-                  uploadedFiles={uploadedFiles}
-                  setUploadedFiles={setUploadedFiles}
-                />
-              </CardContent>
-            </Card>
-          </TabsContent>
 
           <TabsContent value="plant-data" className="space-y-6">
             <Card>
@@ -178,6 +164,20 @@ const Index = () => {
             </Card>
           </TabsContent>
 
+          <TabsContent value="upload" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Upload de Arquivos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FileUpload 
+                  uploadedFiles={uploadedFiles}
+                  setUploadedFiles={setUploadedFiles}
+                />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="analysis" className="space-y-6">
             <Card>
               <CardHeader>
@@ -214,10 +214,10 @@ const Index = () => {
                       Complete todas as etapas anteriores para gerar o relatório.
                     </p>
                     <Button 
-                      onClick={() => setActiveTab("upload")}
+                      onClick={() => setActiveTab("plant-data")}
                       variant="outline"
                     >
-                      Voltar ao Upload
+                      Voltar aos Dados da Usina
                     </Button>
                   </div>
                 )}
